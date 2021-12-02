@@ -1,2 +1,2 @@
-# aws-cd-codepipeline-lambda
-The AWS codepipeline for CD. Codepipeline is initiated by a lambda zip archive upload to the artifact store in the shared service account and then updates the existing function code in the current account.
+# aws-cd-codepipeline
+The AWS codepipeline for CD (i.e. deployment). Codepipeline is triggered by a lambda zip archive or an ECS imagedefinitions.json file upload to the S3 artifact bucket in the shared service account. The deploy stage then takes the input artifact and updates the lambda function code or ECS task definition in the current account.
