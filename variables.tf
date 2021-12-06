@@ -152,15 +152,6 @@ variable "approve_sns_arn" {
   default = null
 }
 
-variable "approve_sns_email_subscriptions" {
-  type = list(string)
-  description = <<EOT
-                (Optional) The list of email subscriptions to add to the approval SNS topic.
-                Required if var.require_manual_approval is true.
-                EOT
-  default = []
-}
-
 variable "approve_url" {
     type = string
     description = "(Optional) The URL for review in the approve stage. It should begin with 'http://' or 'https://'."
