@@ -123,6 +123,21 @@ resource "aws_iam_role_policy" "codepipeline_ecs" {
   policy = data.aws_iam_policy_document.codepipeline_ecs[0].json
 }
 
+data "aws_iam_policy_document" "codepipeline_sns" {
+  count = var.require_manual_approval ? 1 : 0
+  statement {
+    actions   = ["sns:Publish"]
+    resources = [var.approve_sns_arn]
+  }
+}
+
+resource "aws_iam_role_policy" "codepipeline_sns" {
+  count = var.require_manual_approval ? 1 : 0
+  name   = "codepipeline-sns-${var.name}"
+  role   = aws_iam_role.codepipeline.id
+  policy = data.aws_iam_policy_document.codepipeline_sns[0].json
+}
+
 resource "aws_codepipeline" "pipeline" {
   name     = var.name
   role_arn = aws_iam_role.codepipeline.arn
@@ -146,6 +161,27 @@ resource "aws_codepipeline" "pipeline" {
         S3Bucket              = var.svcs_account_artifact_bucket_id
         S3ObjectKey           = var.svcs_account_artifact_object_name
         PollForSourceChanges = "true"
+      }
+    }
+  }
+
+  dynamic "stage" {
+    for_each = var.require_manual_approval ? [1] : []
+    content {
+      name = "Approve"
+
+      action {
+        name            = "Approval"
+        category        = "Approval"
+        owner           = "AWS"
+        provider        = "Manual"
+        version         = "1"
+
+        configuration = {
+          NotificationArn   = var.approve_sns_arn
+          CustomData = "Approve release in codepipeline ${var.name}. The account ID is ${local.account_id}."
+          ExternalEntityLink = var.approve_url
+        }
       }
     }
   }

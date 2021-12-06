@@ -54,6 +54,15 @@ variable "svcs_account_kms_cmk_arn_for_s3" {
   default     = null
 }
 
+variable "s3_bucket_force_destroy" {
+  type        = bool
+  description = <<EOT
+                (Optional) Delete all objects in S3 bucket upon bucket deletion. S3 objects are not recoverable.
+                Defaults to true.
+                EOT
+  default     = true
+}
+
 variable "lambda_function_name" {
   type        = string
   description = "(Optional) The name of the lambda function to update. Required if var.deploy_type is lambda."
@@ -126,4 +135,34 @@ variable "svcs_account_ecr_repository_arn" {
                 Required if var.deploy_type is ecs.                
                 EOT
   default     = null
+}
+
+variable "require_manual_approval" {
+    type = bool
+    description = "(Optional) Create the approval stage in the codepipeline. Defaults to false."
+    default = false
+}
+
+variable "approve_sns_arn" {
+  type = string
+  description = <<EOT
+                (Optional) The ARN of the SNS topic in the approve stage.
+                Required if var.require_manual_approval is true.
+                EOT
+  default = null
+}
+
+variable "approve_sns_email_subscriptions" {
+  type = list(string)
+  description = <<EOT
+                (Optional) The list of email subscriptions to add to the approval SNS topic.
+                Required if var.require_manual_approval is true.
+                EOT
+  default = []
+}
+
+variable "approve_url" {
+    type = string
+    description = "(Optional) The URL for review in the approve stage. It should begin with 'http://' or 'https://'."
+    default = null
 }
