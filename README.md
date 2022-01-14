@@ -1,9 +1,12 @@
 # aws-cd-codepipeline
 The AWS codepipeline for CD (i.e. deployment). Codepipeline is triggered by a lambda zip archive or an ECS imagedefinitions.json file upload to the S3 artifact bucket in the shared service account. The deploy stage then takes the input artifact and updates the lambda function code or ECS task definition in the current account.
 
-Notes:
+## v1.0 Notes
 1. All code pipeline output artifacts are encrypted with the default S3 KMS key (alias aws/s3) in the same region.
 2. For ECS and ECR deployment, set `container_image` in the ECS task definition module to the ECR repository URL imported from the shared service account.
+
+## v1.1 Notes
+If `s3_block_public_access` is set to `true`, the block public access setting for the artifact bucket is enabled.
 
 ## Usage
 ### Lambda
@@ -20,6 +23,7 @@ Notes:
   lambda_function_name              = "lambda-function-name"
   require_manual_approval           = true
   approve_sns_arn                   = "approve-sns-arn"
+  s3_block_public_access            = true
   tags                              = {
                                         Environment = var.environment
                                       }
@@ -45,6 +49,7 @@ module "ecs_cd_pipeline" {
   svcs_account_ecr_repository_arn   = "svcs-account-ecr-repository-arn"
   require_manual_approval           = true
   approve_sns_arn                   = "approve-sns-arn"
+  s3_block_public_access            = true
   tags                              = {
                                         Environment = var.environment
                                       }
@@ -79,6 +84,7 @@ module "ecs_cd_pipeline" {
 | <a name="input_lambda_function_name"></a> [lambda\_function\_name](#input\_lambda\_function\_name) | (Optional) The name of the lambda function to update. Required if var.deploy\_type is lambda. | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Required) The name associated with the pipeline and assoicated resources. i.e.: app-name. | `string` | n/a | yes |
 | <a name="input_require_manual_approval"></a> [require\_manual\_approval](#input\_require\_manual\_approval) | (Optional) Create the approval stage in the codepipeline. Defaults to false. | `bool` | `false` | no |
+| <a name="input_s3_block_public_access"></a> [s3\_block\_public\_access](#input\_s3\_block\_public\_access) | (Optional) Enable the S3 block public access setting for the artifact bucket. | `bool` | `false` | no |
 | <a name="input_s3_bucket_force_destroy"></a> [s3\_bucket\_force\_destroy](#input\_s3\_bucket\_force\_destroy) | (Optional) Delete all objects in S3 bucket upon bucket deletion. S3 objects are not recoverable.<br>                Defaults to true. | `bool` | `true` | no |
 | <a name="input_svcs_account_artifact_bucket_arn"></a> [svcs\_account\_artifact\_bucket\_arn](#input\_svcs\_account\_artifact\_bucket\_arn) | (Optional) The ARN of the S3 bucket that stores the codebuild artifacts.<br>                The bucket is created in the shared service account.<br>                Required if var.deploy\_type is lambda or ecs. | `string` | `null` | no |
 | <a name="input_svcs_account_artifact_bucket_id"></a> [svcs\_account\_artifact\_bucket\_id](#input\_svcs\_account\_artifact\_bucket\_id) | (Optional) The name of the S3 bucket that stores the codebuild artifacts.<br>                The bucket is created in the shared service account.<br>                Required if var.deploy\_type is lambda or ecs. | `string` | `null` | no |

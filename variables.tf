@@ -157,3 +157,9 @@ variable "approve_url" {
     description = "(Optional) The URL for review in the approve stage. It should begin with 'http://' or 'https://'."
     default = null
 }
+
+variable "s3_block_public_access" {
+  type = bool
+  description = "(Optional) Enable the S3 block public access setting for the artifact bucket."
+  default = false
+}
